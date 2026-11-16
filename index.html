@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv='content-type' content='text/html' charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=Edge, chrome=1'>
+    <meta name='author' content='ckcz123'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=yes'>
+    <title>魔塔 1.12</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="screen-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="browsermode" content="application">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="x5-page-mode" content="app">
+    <link type='text/css' href='styles.css?v=5' rel='stylesheet'>
+</head>
+<body>
+<div id='gameGroup'>
+    <p id='mainTips'>请稍后...</p>
+    <div id='startPanel'>
+        <div id='startTop'>
+            <div id='startTopProgressBar'>
+                <div id='startTopProgress'></div>
+            </div>
+            <p id='startTopLoadTips'>资源即将开始加载</p>
+        </div>
+        <img id='startBackground' src='images/bg.png'>
+        <!-- 标题界面；可以改style的color使标题改变颜色 -->
+        <div class="classic-title" role="img" aria-label="魔塔 Magic Tower 1.12"></div>
+        <p id='startLogo' hidden></p>
+        <div id='startButtonGroup'>
+            <div id='startButtons'>
+                <button class='startButton' id='playGame' type='button'>开始游戏</button>
+                <button class='startButton' id='loadGame' type='button'>读取存档</button>
+                <span id='replayGame' hidden></span>
+                <button class='startButton' id='startHelp' type='button'>游戏说明</button>
+            </div>
+            <div id='levelChooseButtons'>
+                <span class='startButton' id='easyLevel'>简单</span>
+                <span class='startButton' id='normalLevel'>普通</span>
+                <span class='startButton' id='hardLevel'>困难</span>
+            </div>
+        </div>
+    </div>
+    <div id='floorMsgGroup'>
+        <p id='logoLabel'></p>
+        <p id='versionLabel'></p>
+        <p id='floorNameLabel'></p>
+    </div>
+    <div id="statusBar" aria-label="勇士状态">
+        <div class="stats">
+            <div class="level"><img src="images/classic/hero.png?v=6" alt=""><span id="lv"></span><span>级</span></div>
+            <dl>
+                <div><dt>生命</dt><dd id="hp"></dd></div>
+                <div><dt>攻击</dt><dd id="atk"></dd></div>
+                <div><dt>防御</dt><dd id="def"></dd></div>
+                <div><dt>金币</dt><dd id="money"></dd></div>
+                <div><dt>经验</dt><dd id="experience"></dd></div>
+            </dl>
+        </div>
+        <div class="keys">
+            <div><img src="images/classic/yellow.png" alt="黄钥匙"><b id="yellowKey"></b><span>个</span></div>
+            <div><img src="images/classic/blue.png" alt="蓝钥匙"><b id="blueKey"></b><span>个</span></div>
+            <div><img src="images/classic/red.png" alt="红钥匙"><b id="redKey"></b><span>个</span></div>
+        </div>
+        <p id="floor"></p>
+        <div class="shortcuts">
+            <button type="button" id="saveShortcut">S 保存</button>
+            <button type="button" id="quitShortcut">Q 退出程序</button>
+            <button type="button" id="loadShortcut">A 读取</button>
+            <button type="button" id="restartShortcut">R 重新开始</button>
+        </div>
+        <div hidden>
+            <span id="mdef"></span><span id="up"></span><span id="poison"></span><span id="weak"></span><span id="curse"></span>
+        </div>
+    </div>
+    <div class="map-border"></div>
+    <div id="toolBar" hidden>
+        <img src="images/book.png" class="tools" id='img-book'>
+        <img src="images/fly.png" class="tools" id='img-fly'>
+        <img src="images/toolbox.png" class="tools" id='img-toolbox'>
+        <img src="images/shop.png" class="tools" id='img-shop'>
+        <img src="images/save.png" class="tools" id='img-save'>
+        <img src="images/load.png" class="tools" id='img-load'>
+        <img src="images/settings.png" class="tools" id='img-settings'>
+        <p class="statusLabel tools" id="hard"></p>
+    </div>
+    <div id="curtain"></div>
+    <canvas class='gameCanvas' id='bg' width='416' height='416'></canvas>
+    <canvas class='gameCanvas' id='event' width='416' height='416'></canvas>
+    <canvas class='gameCanvas' id='fg' width='416' height='416'></canvas>
+    <canvas class='gameCanvas' id='hero' width='416' height='416'></canvas>
+    <canvas class='gameCanvas' id='animate' width='416' height='416'></canvas>
+    <canvas class='gameCanvas' id='weather' width='416' height='416'></canvas>
+    <canvas class='gameCanvas' id='ui' width='416' height='416'></canvas>
+    <canvas id="battle" width="570" height="410" hidden></canvas>
+    <canvas class='gameCanvas' id='data' aria-label='魔塔地图' tabindex='-1' width='416' height='416'>此浏览器不支持HTML5</canvas>
+</div>
+<dialog id="saveSlots" aria-labelledby="slotHeading">
+    <h2 id="slotHeading"></h2>
+    <p id="slotMessage" role="status"></p>
+    <div id="slotList"></div>
+    <div id="slotConfirm" hidden></div>
+    <button id="closeSlots" type="button">返回 <kbd>Esc</kbd></button>
+</dialog>
+<dialog id="gameHelp" aria-labelledby="helpHeading">
+    <h2 id="helpHeading">游戏说明</h2>
+    <p>方向键移动。商店用 ↑ ↓ 选择，按空格或回车确认，按 Esc 离开。</p>
+    <p>长按走到锁门前会停下，点击地图寻路会避开锁门。在门旁重新按朝向门的方向键即可开门。</p>
+    <p>拿到怪物手册后按 L 查看，拿到楼层传送器后按 J 使用。T 查看道具。</p>
+    <p>S 打开存档，A 打开读档。存档保存在当前浏览器，关闭游戏后也能继续。</p>
+    <form method="dialog"><button>返回</button></form>
+</dialog>
+<script src="classic.js?v=6"></script>
+<script id='mainScript' src='main.js?v=6'></script>
+<script src='libs/thirdparty/mid.min.js'></script>
+</body>
+</html>
