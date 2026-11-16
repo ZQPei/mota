@@ -236,6 +236,10 @@ function installClassicUI(game) {
     });
 
     installTouchControls(game, touchControls);
+    for (const surface of [playfield, touchControls]) {
+        surface.addEventListener("contextmenu", event => event.preventDefault());
+        surface.addEventListener("dragstart", event => event.preventDefault());
+    }
 
     game.getClickLoc = (x, y) => {
         const rect = game.dom.data.getBoundingClientRect();
@@ -300,29 +304,46 @@ function installTouchControls(game, controls) {
     controls.addEventListener("keydown", keepButtonActivation);
     controls.addEventListener("keyup", keepButtonActivation);
 
+    function cancelDirection() {
+        const pointer = activePointer;
+        activePointer = null;
+        if (pointer && game.keyboardInput?.key === pointer.keyCode) game.stopKeyboardMove();
+    }
+
     function finishDirection(event) {
         if (event.pointerId !== activePointer?.id) return;
+        if (event.type !== "pointerup") {
+            cancelDirection();
+            return;
+        }
         const { keyCode } = activePointer;
         activePointer = null;
-        if (event.type === "pointerup") {
-            game.onkeyUp({ keyCode });
-        } else if (game.keyboardInput?.key === keyCode) {
-            game.stopKeyboardMove();
-        }
+        game.onkeyUp({ keyCode });
     }
+
+    window.addEventListener("pointerup", finishDirection, true);
+    window.addEventListener("pointercancel", finishDirection, true);
+    controls.addEventListener("lostpointercapture", finishDirection);
+    window.addEventListener("blur", cancelDirection);
+    window.addEventListener("pagehide", cancelDirection);
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) cancelDirection();
+    });
 
     for (const button of controls.querySelectorAll("[data-direction]")) {
         const keyCode = Number(button.dataset.direction);
         button.addEventListener("pointerdown", event => {
-            if (activePointer || event.button !== 0 || !(game.isPlaying() || game.status.lockControl)) return;
+            if (event.button !== 0 || !(game.isPlaying() || game.status.lockControl)) return;
+            if (activePointer) {
+                // A new primary pointer of the same type means the previous gesture ended.
+                if (!event.isPrimary || event.pointerType !== activePointer.type) return;
+                cancelDirection();
+            }
             event.preventDefault();
             button.setPointerCapture(event.pointerId);
-            activePointer = { id: event.pointerId, keyCode };
+            activePointer = { id: event.pointerId, type: event.pointerType, keyCode };
             game.onkeyDown({ keyCode });
         });
-        button.addEventListener("pointerup", finishDirection);
-        button.addEventListener("pointercancel", finishDirection);
-        button.addEventListener("lostpointercapture", finishDirection);
         button.addEventListener("click", event => {
             if (event.detail === 0 && (game.isPlaying() || game.status.lockControl)) {
                 game.onkeyDown({ keyCode });

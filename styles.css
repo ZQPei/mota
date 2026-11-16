@@ -16,6 +16,12 @@ body {
 
 #playfield { position: relative; flex: 1; min-width: 0; min-height: 0 }
 
+#gameGroup, #touchControls, dialog button {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
 #gameGroup {
     width: 570px;
     height: 410px;
@@ -195,8 +201,6 @@ kbd { font: inherit; color: #d7c7aa }
         background: #29241e;
         font: 15px system-ui, sans-serif;
         touch-action: none;
-        user-select: none;
-        -webkit-touch-callout: none;
     }
     #touchControls .touch-directions button { font-size: 22px }
     #touchControls button:active { background: #674829 }
