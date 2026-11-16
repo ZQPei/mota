@@ -569,14 +569,11 @@ core.prototype.loadImage = function (imgName, callback) {
         if (name.indexOf(".png")<0) // 不包含"png"
             name=name+".png";
         var image = new Image();
-        image.src = 'images/' + name + "?v=" + main.version;
-        if (image.complete) {
-            callback(imgName, image);
-            return;
-        }
+        // 即使图片已缓存，也在界面初始化完成后处理加载事件。
         image.onload = function () {
             callback(imgName, image);
         }
+        image.src = 'images/' + name + "?v=" + main.version;
     }
     catch (e) {
         alert(e);
