@@ -8,7 +8,13 @@
 body {
     margin: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
 }
+
+#playfield { position: relative; flex: 1; min-width: 0; min-height: 0 }
 
 #gameGroup {
     width: 570px;
@@ -158,3 +164,49 @@ kbd { font: inherit; color: #d7c7aa }
 
 #battle { position: absolute; inset: 0; z-index: 12; pointer-events: none }
 .classic-title { height: 135px }
+
+#touchControls { display: none }
+
+@media (any-pointer: coarse), (max-width: 570px) {
+    #touchControls:not([hidden]) {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 570px;
+        align-self: center;
+        display: grid;
+        grid-template-columns: minmax(140px, 2fr) 3fr;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+    }
+    .touch-directions, .touch-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+    }
+    .touch-up { grid-column: 2; grid-row: 1 }
+    .touch-directions button:not(.touch-up) { grid-row: 2 }
+    #touchControls button {
+        min-height: 44px;
+        padding: 0;
+        border: 1px solid #9f723e;
+        border-radius: 5px;
+        color: white;
+        background: #29241e;
+        font: 15px system-ui, sans-serif;
+        touch-action: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+    #touchControls .touch-directions button { font-size: 22px }
+    #touchControls button:active { background: #674829 }
+}
+
+@media (any-pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+    body { flex-direction: row }
+    #touchControls:not([hidden]) {
+        width: 164px;
+        grid-template-columns: 1fr;
+        padding-right: max(10px, env(safe-area-inset-right));
+    }
+}

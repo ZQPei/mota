@@ -217,13 +217,25 @@ function drawClassicGoldShop(content, choices) {
 }
 
 function installClassicUI(game) {
+    const playfield = document.querySelector("#playfield");
+    const touchControls = document.querySelector("#touchControls");
     game.resize = () => {
-        const scale = Math.min(1, window.innerWidth / 570, window.innerHeight / 410);
+        touchControls.hidden = !game.isPlaying() && !game.status.isStarting;
+        const scale = Math.min(1, playfield.clientWidth / 570, playfield.clientHeight / 410);
         game.dom.gameGroup.style.setProperty("--scale", scale);
         game.domStyle.scale = scale;
         game.domStyle.screenMode = "bigScreen";
         Object.values(game.canvas).forEach(context => { context.imageSmoothingEnabled = false; });
     };
+    new ResizeObserver(game.resize).observe(playfield);
+
+    const hideStart = game.hideStartAnimate;
+    game.hideStartAnimate = callback => hideStart.call(game, () => {
+        game.resize();
+        callback?.();
+    });
+
+    installTouchControls(game, touchControls);
 
     game.getClickLoc = (x, y) => {
         const rect = game.dom.data.getBoundingClientRect();
@@ -277,6 +289,58 @@ function installClassicUI(game) {
             event.stopImmediatePropagation();
         }
     }, { capture: true, passive: false });
+}
+
+function installTouchControls(game, controls) {
+    let activePointer;
+
+    const keepButtonActivation = event => {
+        if (event.code === "Enter" || event.code === "Space") event.stopPropagation();
+    };
+    controls.addEventListener("keydown", keepButtonActivation);
+    controls.addEventListener("keyup", keepButtonActivation);
+
+    function finishDirection(event) {
+        if (event.pointerId !== activePointer?.id) return;
+        const { keyCode } = activePointer;
+        activePointer = null;
+        if (event.type === "pointerup") {
+            game.onkeyUp({ keyCode });
+        } else if (game.keyboardInput?.key === keyCode) {
+            game.stopKeyboardMove();
+        }
+    }
+
+    for (const button of controls.querySelectorAll("[data-direction]")) {
+        const keyCode = Number(button.dataset.direction);
+        button.addEventListener("pointerdown", event => {
+            if (activePointer || event.button !== 0 || !(game.isPlaying() || game.status.lockControl)) return;
+            event.preventDefault();
+            button.setPointerCapture(event.pointerId);
+            activePointer = { id: event.pointerId, keyCode };
+            game.onkeyDown({ keyCode });
+        });
+        button.addEventListener("pointerup", finishDirection);
+        button.addEventListener("pointercancel", finishDirection);
+        button.addEventListener("lostpointercapture", finishDirection);
+        button.addEventListener("click", event => {
+            if (event.detail === 0 && (game.isPlaying() || game.status.lockControl)) {
+                game.onkeyDown({ keyCode });
+                game.onkeyUp({ keyCode });
+            }
+        });
+    }
+
+    for (const button of controls.querySelectorAll("[data-game-key]")) {
+        const keyCode = Number(button.dataset.gameKey);
+        button.addEventListener("click", () => {
+            if (game.status.lockControl || (game.isPlaying() && keyCode !== 27)) game.onkeyUp({ keyCode });
+            game.dom.data.focus({ preventScroll: true });
+        });
+    }
+    for (const button of controls.querySelectorAll("[data-slot-mode]")) {
+        button.addEventListener("click", () => openSaveSlots(button.dataset.slotMode));
+    }
 }
 
 const battleArt = new Image();

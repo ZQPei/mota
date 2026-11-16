@@ -13,9 +13,10 @@
     <meta name="x5-orientation" content="portrait">
     <meta name="x5-fullscreen" content="true">
     <meta name="x5-page-mode" content="app">
-    <link type='text/css' href='styles.css?v=5' rel='stylesheet'>
+    <link type='text/css' href='styles.css?v=6' rel='stylesheet'>
 </head>
 <body>
+<div id="playfield">
 <div id='gameGroup'>
     <p id='mainTips'>请稍后...</p>
     <div id='startPanel'>
@@ -97,6 +98,24 @@
     <canvas id="battle" width="570" height="410" hidden></canvas>
     <canvas class='gameCanvas' id='data' aria-label='魔塔地图' tabindex='-1' width='416' height='416'>此浏览器不支持HTML5</canvas>
 </div>
+</div>
+<div id="touchControls" aria-label="触屏操作" hidden>
+    <div class="touch-directions" role="group" aria-label="移动">
+        <button type="button" class="touch-up" data-direction="38" aria-label="向上">↑</button>
+        <button type="button" data-direction="37" aria-label="向左">←</button>
+        <button type="button" data-direction="40" aria-label="向下">↓</button>
+        <button type="button" data-direction="39" aria-label="向右">→</button>
+    </div>
+    <div class="touch-actions" role="group" aria-label="游戏操作">
+        <button type="button" data-game-key="13">确认</button>
+        <button type="button" data-game-key="27">返回</button>
+        <button type="button" data-slot-mode="save">保存</button>
+        <button type="button" data-slot-mode="load">读档</button>
+        <button type="button" data-game-key="88">手册</button>
+        <button type="button" data-game-key="71">传送</button>
+        <button type="button" data-game-key="84">道具</button>
+    </div>
+</div>
 <dialog id="saveSlots" aria-labelledby="slotHeading">
     <h2 id="slotHeading"></h2>
     <p id="slotMessage" role="status"></p>
@@ -107,12 +126,13 @@
 <dialog id="gameHelp" aria-labelledby="helpHeading">
     <h2 id="helpHeading">游戏说明</h2>
     <p>方向键移动。商店用 ↑ ↓ 选择，按空格或回车确认，按 Esc 离开。</p>
+    <p>手机上可用屏幕方向键移动或开门，点「确认」继续对话或确认选项。</p>
     <p>长按走到锁门前会停下，点击地图寻路会避开锁门。在门旁重新按朝向门的方向键即可开门。</p>
     <p>拿到怪物手册后按 L 查看，拿到楼层传送器后按 J 使用。T 查看道具。</p>
     <p>S 打开存档，A 打开读档。存档保存在当前浏览器，关闭游戏后也能继续。</p>
     <form method="dialog"><button>返回</button></form>
 </dialog>
-<script src="classic.js?v=6"></script>
+<script src="classic.js?v=7"></script>
 <script id='mainScript' src='main.js?v=7'></script>
 <script src='libs/thirdparty/mid.min.js'></script>
 </body>
