@@ -127,26 +127,24 @@ ui.prototype.drawTextBox = function(content) {
 
     var xoffset = 6, yoffset = 22;
 
-    var top;
-    if (position=='center') {
-        top = (416 - height) / 2;
-    }
-    else if (position=='up') {
-        if (px==null || py==null) {
-            top = 5;
-        }
-        else {
-            top = 32 * py - height - ydelta - yoffset;
-        }
-    }
-    else if (position=='down') {
-        if (px==null || py==null) {
-            top = 416 - height - 5;
-        }
-        else {
-            top = 32 * py + 32 + yoffset;
+    var minTop = 8, maxTop = 408 - height;
+    var anchored = core.isset(px) && core.isset(py);
+    var top = (416 - height) / 2;
+    if (position === 'up' || position === 'down') {
+        var above = 32 * py - height - ydelta - yoffset;
+        var below = 32 * (py + 1) + yoffset;
+        top = position === 'up' ? minTop : maxTop;
+        if (anchored) {
+            top = position === 'up' ? above : below;
+            var oppositeTop = position === 'up' ? below : above;
+            if ((top < minTop || top > maxTop) && oppositeTop >= minTop && oppositeTop <= maxTop) {
+                position = position === 'up' ? 'down' : 'up';
+                top = oppositeTop;
+            }
         }
     }
+    var drawTail = anchored && top >= minTop && top <= maxTop;
+    top = Math.max(minTop, Math.min(top, maxTop));
 
     // var left = 97, top = 64, right = 416 - 2 * left, bottom = 416 - 2 * top;
     //core.setAlpha('ui', 0.85);
@@ -161,7 +159,7 @@ ui.prototype.drawTextBox = function(content) {
     var xoffset = 6;
 
     // draw triangle
-    if (position=='up' && core.isset(px) && core.isset(py)) {
+    if (position=='up' && drawTail) {
         core.canvas.ui.clearRect(32*px+xoffset, top+height-1, 32-2*xoffset, 2);
         core.canvas.ui.beginPath();
         core.canvas.ui.moveTo(32*px+xoffset-1, top+height-1);
@@ -175,7 +173,7 @@ ui.prototype.drawTextBox = function(content) {
         core.drawLine('ui', 32*px+xoffset, top+height, 32*px+16, top+height+yoffset-2);
         core.drawLine('ui', 32*px+32-xoffset, top+height, 32*px+16, top+height+yoffset-2);
     }
-    if (position=='down' && core.isset(px) && core.isset(py)) {
+    if (position=='down' && drawTail) {
         core.canvas.ui.clearRect(32*px+xoffset, top-2, 32-2*xoffset, 3);
         core.canvas.ui.beginPath();
         core.canvas.ui.moveTo(32*px+xoffset-1, top+1);

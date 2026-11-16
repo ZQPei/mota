@@ -243,7 +243,13 @@ function installClassicUI(game) {
 
     game.getClickLoc = (x, y) => {
         const rect = game.dom.data.getBoundingClientRect();
-        return { x: x - rect.left, y: y - rect.top, size: rect.width / 13 };
+        const localX = x - rect.left;
+        const localY = y - rect.top;
+        const size = rect.width / 13;
+        // The map is inset by one tile, while panels use the whole canvas.
+        if (!game.status.lockControl &&
+            (localX < size || localX >= 12 * size || localY < size || localY >= 12 * size)) return null;
+        return { x: localX, y: localY, size };
     };
 
     const update = game.updateStatusBar;

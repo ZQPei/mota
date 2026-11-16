@@ -2,7 +2,7 @@ function main() {
 
     //------------------------ 用户修改内容 ------------------------//
 
-    this.version = "1.12-html5.5"; // 资源缓存版本。
+    this.version = "1.12-html5.6"; // 资源缓存版本。
 
     this.useCompress = false; // 是否使用压缩文件
     // 当你即将发布你的塔时，请使用“JS代码压缩工具”将所有js代码进行压缩，然后将这里的useCompress改为true。
